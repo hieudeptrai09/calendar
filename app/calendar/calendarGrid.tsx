@@ -1,9 +1,9 @@
+import { LIMIT } from "./constant";
 import WorkGrid from "./workGrid";
 
 export default function CalendarGrid() {
   const dates = [];
   const times = [];
-  const LIMIT = 7;
 
   for (let i = LIMIT - 1; i >= 0; i--) {
     const date = new Date();

@@ -1,10 +1,18 @@
 type WorkDialogProps = {
-  work?: Work;
+  work?: WorkInner;
   isOpen: boolean;
   onClose: () => void;
+  title: string;
+  isReadonly: boolean;
 };
 
-export default function WorkDialog({ work, isOpen, onClose }: WorkDialogProps) {
+export default function WorkDialog({
+  work,
+  isOpen,
+  onClose,
+  title,
+  isReadonly,
+}: WorkDialogProps) {
   if (!isOpen) return null;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -26,7 +34,7 @@ export default function WorkDialog({ work, isOpen, onClose }: WorkDialogProps) {
       >
         <div className="flex justify-between items-center mb-4 border-b border-gray-300 pb-2">
           <h2 className="text-xl font-bold text-gray-700 text-center">
-            Input Work
+            {title}
           </h2>
           <button
             type="button"
@@ -43,6 +51,9 @@ export default function WorkDialog({ work, isOpen, onClose }: WorkDialogProps) {
               type="text"
               className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 w-full"
               placeholder="Enter work name"
+              name="name"
+              defaultValue={work?.name || ""}
+              disabled={isReadonly}
             />
           </div>
           <div>
@@ -50,6 +61,9 @@ export default function WorkDialog({ work, isOpen, onClose }: WorkDialogProps) {
             <textarea
               className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 w-full"
               placeholder="Enter work description"
+              name="description"
+              defaultValue={work?.description || ""}
+              disabled={isReadonly}
             />
           </div>
           <div>
@@ -57,6 +71,9 @@ export default function WorkDialog({ work, isOpen, onClose }: WorkDialogProps) {
             <input
               type="datetime-local"
               className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+              name="startTime"
+              defaultValue={work?.startTime || ""}
+              disabled={isReadonly}
             />
           </div>
           <div>
@@ -64,6 +81,9 @@ export default function WorkDialog({ work, isOpen, onClose }: WorkDialogProps) {
             <input
               type="datetime-local"
               className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+              name="endTime"
+              defaultValue={work?.endTime || ""}
+              disabled={isReadonly}
             />
           </div>
           <div className="flex justify-end space-x-2 pt-4">
