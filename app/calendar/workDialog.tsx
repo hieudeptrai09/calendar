@@ -1,5 +1,6 @@
 type WorkDialogProps = {
   work?: WorkInner;
+  workId?: string;
   isOpen: boolean;
   onClose: () => void;
   title: string;
@@ -12,13 +13,16 @@ export default function WorkDialog({
   onClose,
   title,
   isReadonly,
+  workId,
 }: WorkDialogProps) {
   if (!isOpen) return null;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = Object.fromEntries(new FormData(event.currentTarget));
-    const key = Math.floor(Math.random() * 1000000000).toString(36);
+    const key = workId
+      ? Math.floor(Math.random() * 1000000000).toString(36)
+      : workId;
     localStorage.setItem(`workData_${key}`, JSON.stringify(formData));
     onClose();
   };

@@ -1,7 +1,8 @@
 import { LIMIT } from "./constant";
 import WorkGrid from "./workGrid";
+import WorkSection from "./workSection";
 
-export default function CalendarGrid() {
+export default function CalendarGrid({ works }: { works: string[] }) {
   const dates = [];
   const times = [];
 
@@ -42,6 +43,9 @@ export default function CalendarGrid() {
 
         <div className="relative flex-1">
           <WorkGrid />
+          {works.map((workId) => (
+            <WorkSection workId={workId} />
+          ))}
         </div>
       </div>
     </>

@@ -9,6 +9,12 @@ type ScreenPosition = {
 
 export default function WorkGrid() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [work, setWork] = useState<WorkInner>({
+    name: "",
+    description: "",
+    startTime: "",
+    endTime: "",
+  });
 
   const boxRef = useRef<HTMLDivElement>(null);
   const dragDate = useRef("");
@@ -17,7 +23,6 @@ export default function WorkGrid() {
   const toDate = (screenX: number, screenY: number) => {
     if (!boxRef.current) return new Date().toISOString().slice(0, 16);
     const rect = boxRef.current.getBoundingClientRect();
-    console.log(rect);
     const dateOffset = ((screenX - rect.left) * LIMIT) / rect.width - LIMIT + 1;
     const minuteFromMidnight =
       ((screenY - rect.top) * MINUTE_PER_DAY) / rect.height;
@@ -30,7 +35,6 @@ export default function WorkGrid() {
 
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
     dragDate.current = toDate(event.clientX, event.clientY);
-    console.log("Drag date", dragDate.current);
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -40,7 +44,11 @@ export default function WorkGrid() {
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     dropDate.current = toDate(event.clientX, event.clientY);
-    console.log("Drop date", dropDate.current);
+    setWork((prevWork) => ({
+      ...prevWork,
+      startTime: dragDate.current,
+      endTime: dropDate.current,
+    }));
     setIsDialogOpen(true);
   };
 
@@ -68,6 +76,7 @@ export default function WorkGrid() {
         onClose={() => setIsDialogOpen(false)}
         title="Create Event"
         isReadonly={false}
+        work={work}
       />
     </>
   );
