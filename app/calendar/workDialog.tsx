@@ -35,6 +35,7 @@ export default function WorkDialog({
       <div
         className="bg-white p-6 rounded shadow-lg w-[500px] max-w-full"
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-4 border-b border-gray-300 pb-2">
           <h2 className="text-xl font-bold text-gray-700 text-center">

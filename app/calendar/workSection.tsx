@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import WorkDialog from "./workDialog";
 import WorkContextMenu from "./workContextMenu";
 import type { boundingClientRect } from "./type";
-import { dateToCoordinate } from "./utils";
+import { coordinateToDate, dateToCoordinate } from "./utils";
 import { LIMIT } from "./constant";
 
 export default function WorkSection({
@@ -47,6 +47,18 @@ export default function WorkSection({
     setWork(work);
   }, []);
 
+  const handleDragOver = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.MouseEvent) => {
+    event.preventDefault();
+    const dropDate = coordinateToDate(event.clientX, event.clientY, boxRect);
+    let newData = { ...work, startTime: dropDate };
+    localStorage.setItem(workId, JSON.stringify(newData));
+  };
+
   const handleMoveDown = (event: React.MouseEvent) => {
     if (event.button === 0) {
       setIsDialogOpen(true);
@@ -75,8 +87,10 @@ export default function WorkSection({
   return (
     <div
       className="absolute top-0 left-0 bg-yellow-500 w-20 h-20"
-      onMouseDown={(e) => handleMoveDown(e)}
+      onClick={(e) => handleMoveDown(e)}
       onContextMenu={(e) => handleShowContextMenu(e)}
+      onDragOver={(e) => handleDragOver(e)}
+      onDrop={(e) => handleDrop(e)}
       style={{ ...workPosition }}
     >
       <div>{work.name}</div>

@@ -18,9 +18,15 @@ export default function WorkContextMenu({
     <div
       className="fixed min-w-36 rounded-md border border-slate-200 bg-white py-1 shadow-lg text-gray-700"
       style={{ left: x, top: y }}
+      onClick={(e) => e.stopPropagation()}
+      onContextMenu={(e) => e.stopPropagation()}
     >
-      <button onClick={editWork}>Sửa</button>
-      <button onClick={deleteWork}>Xoá</button>
+      <button className="block" onClick={editWork}>
+        Sửa
+      </button>
+      <button className="block" onClick={deleteWork}>
+        Xoá
+      </button>
     </div>
   );
 }
