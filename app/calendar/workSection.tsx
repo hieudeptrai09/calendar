@@ -36,8 +36,8 @@ export default function WorkSection({
       return;
     }
     const work = JSON.parse(localStorage.getItem(workId) || "");
-    const startPosition = dateToCoordinate(work.startTime);
-    const endPosition = dateToCoordinate(work.endTime);
+    const startPosition = dateToCoordinate(work.startTime, boxRect);
+    const endPosition = dateToCoordinate(work.endTime, boxRect);
     setWorkPosition({
       top: startPosition.top,
       left: startPosition.left,
