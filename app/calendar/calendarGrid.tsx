@@ -30,9 +30,9 @@ export default function CalendarGrid({ works }: { works: string[] }) {
     <>
       <div className="flex w-full">
         <div className="w-15 h-12 border border-gray-300"></div>
-        {dates.map((date, index) => (
+        {dates.map((date) => (
           <div
-            key={index}
+            key={date}
             className="h-12 border border-gray-300 flex flex-1 items-center justify-center"
           >
             {date}
@@ -41,9 +41,9 @@ export default function CalendarGrid({ works }: { works: string[] }) {
       </div>
       <div className="flex w-full">
         <div className="flex flex-col w-15">
-          {times.map((time, index) => (
+          {times.map((time) => (
             <div
-              key={index}
+              key={time}
               className="h-[100px] border border-gray-300 flex items-start justify-center"
             >
               {time}
@@ -55,7 +55,7 @@ export default function CalendarGrid({ works }: { works: string[] }) {
           <div className="absolute inset-0" ref={boxRef}>
             <WorkGrid boxRect={boxRect} />
             {works.map((workId) => (
-              <WorkSection workId={workId} boxRect={boxRect} />
+              <WorkSection key={workId} workId={workId} boxRect={boxRect} />
             ))}
           </div>
         </div>
