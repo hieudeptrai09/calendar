@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import CalendarPage from "../calendar/page";
+import { WorkContextProvider } from "~/calendar/workContext";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,5 +10,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <CalendarPage />;
+  return (
+    <WorkContextProvider>
+      <CalendarPage />
+    </WorkContextProvider>
+  );
 }

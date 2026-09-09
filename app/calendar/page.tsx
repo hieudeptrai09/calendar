@@ -1,13 +1,8 @@
-import { useEffect, useState } from "react";
 import CalendarGrid from "./calendarGrid";
+import { useWorkContext } from "./workContext";
 
 export default function CalendarPage() {
-  const [works, setWorks] = useState<string[]>([]);
-
-  useEffect(() => {
-    const works = { ...localStorage };
-    setWorks(Object.keys(works));
-  }, []);
+  const { works } = useWorkContext();
 
   return (
     <div>
@@ -15,7 +10,7 @@ export default function CalendarPage() {
         Calendar Page
       </h1>
       <div className="px-4 pb-6">
-        <CalendarGrid works={works} />
+        <CalendarGrid works={Object.keys(works)} />
       </div>
     </div>
   );

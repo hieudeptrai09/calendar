@@ -1,3 +1,5 @@
+import { createWorkId, useWorkContext } from "./workContext";
+
 type WorkDialogProps = {
   work?: WorkInner;
   workId?: string;
@@ -15,15 +17,16 @@ export default function WorkDialog({
   isReadonly,
   workId,
 }: WorkDialogProps) {
+  const { saveWork } = useWorkContext();
+
   if (!isOpen) return null;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = Object.fromEntries(new FormData(event.currentTarget));
-    const key = workId
-      ? Math.floor(Math.random() * 1000000000).toString(36)
-      : workId;
-    localStorage.setItem(`workData_${key}`, JSON.stringify(formData));
+    const formData = Object.fromEntries(
+      new FormData(event.currentTarget),
+    ) as WorkInner;
+    saveWork(workId ?? createWorkId(), formData);
     onClose();
   };
 
