@@ -1,18 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import WorkDialog from "./workDialog";
 import WorkContextMenu from "./workContextMenu";
+import type { boundingClientRect } from "./type";
+import { dateToCoordinate } from "./utils";
+import { LIMIT } from "./constant";
 
-type ScreenPosition = {
-  x: number;
-  y: number;
-};
-
-export default function WorkSection({ workId }: { workId: string }) {
+export default function WorkSection({
+  workId,
+  boxRect,
+}: {
+  workId: string;
+  boxRect?: boundingClientRect;
+}) {
   const [work, setWork] = useState<WorkInner>({
     name: "",
     description: "",
     startTime: "",
     endTime: "",
+  });
+  const [workPosition, setWorkPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+    height: 0,
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -22,7 +32,18 @@ export default function WorkSection({ workId }: { workId: string }) {
   const [dialogTitle, setDialogTitle] = useState("");
 
   useEffect(() => {
+    if (!boxRect) {
+      return;
+    }
     const work = JSON.parse(localStorage.getItem(workId) || "");
+    const startPosition = dateToCoordinate(work.startTime);
+    const endPosition = dateToCoordinate(work.endTime);
+    setWorkPosition({
+      top: startPosition.top,
+      left: startPosition.left,
+      width: boxRect.width / LIMIT,
+      height: endPosition.top - startPosition.top,
+    });
     setWork(work);
   }, []);
 
@@ -56,6 +77,7 @@ export default function WorkSection({ workId }: { workId: string }) {
       className="absolute top-0 left-0 bg-yellow-500 w-20 h-20"
       onMouseDown={(e) => handleMoveDown(e)}
       onContextMenu={(e) => handleShowContextMenu(e)}
+      style={{ ...workPosition }}
     >
       <div>{work.name}</div>
       <div>{work.description}</div>

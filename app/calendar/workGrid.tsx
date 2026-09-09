@@ -1,13 +1,13 @@
 import { Fragment, useRef, useState } from "react";
 import WorkDialog from "./workDialog";
-import { LIMIT, MINUTE_PER_DAY } from "./constant";
+import type { boundingClientRect } from "./type";
+import { coordinateToDate } from "./utils";
 
-type ScreenPosition = {
-  x: number;
-  y: number;
-};
-
-export default function WorkGrid() {
+export default function WorkGrid({
+  boxRect,
+}: {
+  boxRect?: boundingClientRect;
+}) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [work, setWork] = useState<WorkInner>({
     name: "",
@@ -16,25 +16,11 @@ export default function WorkGrid() {
     endTime: "",
   });
 
-  const boxRef = useRef<HTMLDivElement>(null);
   const dragDate = useRef("");
   const dropDate = useRef("");
 
-  const toDate = (screenX: number, screenY: number) => {
-    if (!boxRef.current) return new Date().toISOString().slice(0, 16);
-    const rect = boxRef.current.getBoundingClientRect();
-    const dateOffset = ((screenX - rect.left) * LIMIT) / rect.width - LIMIT + 1;
-    const minuteFromMidnight =
-      ((screenY - rect.top) * MINUTE_PER_DAY) / rect.height;
-    const date = new Date();
-    date.setDate(date.getDate() + dateOffset);
-    date.setHours(0, minuteFromMidnight, 0, 0);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-  };
-
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
-    dragDate.current = toDate(event.clientX, event.clientY);
+    dragDate.current = coordinateToDate(event.clientX, event.clientY, boxRect);
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -43,7 +29,7 @@ export default function WorkGrid() {
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    dropDate.current = toDate(event.clientX, event.clientY);
+    dropDate.current = coordinateToDate(event.clientX, event.clientY, boxRect);
     setWork((prevWork) => ({
       ...prevWork,
       startTime: dragDate.current,
@@ -55,8 +41,7 @@ export default function WorkGrid() {
   return (
     <>
       <div
-        ref={boxRef}
-        className="grid grid-cols-7 grid-rows-24 border border-gray-300 absolute inset-0"
+        className="grid grid-cols-7 grid-rows-24 border border-gray-300 w-full h-full"
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
