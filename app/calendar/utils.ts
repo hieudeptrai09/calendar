@@ -7,8 +7,9 @@ export const coordinateToDate = (
   boxRect?: boundingClientRect,
 ) => {
   if (!boxRect) return new Date().toISOString().slice(0, 16);
-  const dateOffset =
-    ((screenX - boxRect.left) * LIMIT) / boxRect.width - LIMIT + 1;
+  const dateOffset = Math.floor(
+    ((screenX - boxRect.left) * LIMIT) / boxRect.width,
+  );
   const minuteFromMidnight =
     ((screenY - boxRect.top) * MINUTE_PER_DAY) / boxRect.height;
   const date = new Date();
@@ -24,16 +25,15 @@ export const dateToCoordinate = (
 ) => {
   if (!boxRect) return { left: 0, top: 0 };
   const [date, time] = dateTimeString.split("T");
-  const [year, month, day] = date.split("-");
-  const [hour, minute] = date.split(":");
+  const [hour, minute] = time.split(":");
   const minuteOffset = Number.parseInt(hour) * 60 + Number.parseInt(minute);
   const now = new Date();
   const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
   const start = new Date(date).getTime();
   const MS_PER_DAY = 86400000;
-  const dateOffset = Math.round((today - start) / MS_PER_DAY);
+  const dateOffset = Math.round((start - today) / MS_PER_DAY);
   return {
-    left: ((dateOffset + LIMIT - 1) * boxRect.width) / LIMIT,
+    left: (dateOffset * boxRect.width) / LIMIT,
     top: (minuteOffset * boxRect.height) / MINUTE_PER_DAY,
   };
 };

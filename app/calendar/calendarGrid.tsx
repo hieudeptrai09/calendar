@@ -16,10 +16,10 @@ export default function CalendarGrid({ works }: { works: string[] }) {
     if (boxRef.current) setBoxRect(boxRef.current.getBoundingClientRect());
   }, []);
 
-  for (let i = LIMIT - 1; i >= 0; i--) {
+  for (let i = 0; i < LIMIT; i++) {
     const date = new Date();
-    date.setDate(date.getDate() - i);
-    dates.push(date.toLocaleDateString());
+    date.setDate(date.getDate() + i);
+    dates.push(date.toLocaleDateString("en-UK"));
   }
 
   for (let i = 0; i < 24; i++) {
