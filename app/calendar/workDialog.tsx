@@ -1,5 +1,6 @@
-import type { WorkInner } from "./type";
-import { createWorkId } from "./utils";
+import { useState } from "react";
+import type { WorkErrors, WorkInner } from "./type";
+import { createWorkId, validate } from "./utils";
 import { useWorkContext } from "./workContext";
 
 type WorkDialogProps = {
@@ -19,7 +20,8 @@ export default function WorkDialog({
   isReadonly,
   workId,
 }: WorkDialogProps) {
-  const { saveWork } = useWorkContext();
+  const { works, saveWork } = useWorkContext();
+  const [errors, setErrors] = useState<WorkErrors>({});
 
   if (!isOpen) return null;
 
@@ -28,7 +30,13 @@ export default function WorkDialog({
     const formData = Object.fromEntries(
       new FormData(event.currentTarget),
     ) as WorkInner;
-    saveWork(workId ?? createWorkId(), formData);
+    const result = validate(formData, works, workId);
+    if (!result.ok) {
+      setErrors(result.errors);
+      return;
+    }
+    setErrors({});
+    saveWork(workId ?? createWorkId(), result.work);
     onClose();
   };
 
@@ -65,6 +73,9 @@ export default function WorkDialog({
               defaultValue={work?.name || ""}
               disabled={isReadonly}
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+            )}
           </div>
           <div>
             <label className="block text-gray-700">Description</label>
@@ -85,6 +96,9 @@ export default function WorkDialog({
               defaultValue={work?.startTime || ""}
               disabled={isReadonly}
             />
+            {errors.startTime && (
+              <p className="text-red-500 text-sm mt-1">{errors.startTime}</p>
+            )}
           </div>
           <div>
             <label className="block text-gray-700">End Time</label>
@@ -95,6 +109,9 @@ export default function WorkDialog({
               defaultValue={work?.endTime || ""}
               disabled={isReadonly}
             />
+            {errors.endTime && (
+              <p className="text-red-500 text-sm mt-1">{errors.endTime}</p>
+            )}
           </div>
           <div className="flex justify-end space-x-2 pt-4">
             <button

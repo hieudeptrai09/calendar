@@ -1,8 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import WorkDialog from "./workDialog";
 import WorkContextMenu from "./workContextMenu";
-import type { boundingClientRect } from "./type";
-import { coordinateToDate, dateToCoordinate } from "./utils";
+import type { boundingClientRect, WorkInner } from "./type";
+import { coordinateToDate, dateToCoordinate, validate } from "./utils";
 import { LIMIT } from "./constant";
 import { useWorkContext } from "./workContext";
 
@@ -19,6 +19,8 @@ export default function WorkSection({
   const [yContextMenu, setYContextMenu] = useState(0);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("");
+
+  const dragDateRef = useRef("");
 
   const { works, saveWork, removeWork } = useWorkContext();
   const work = works[workId];
@@ -37,6 +39,14 @@ export default function WorkSection({
 
   if (!work || !workPosition) return null;
 
+  const handleDragStart = (event: React.MouseEvent) => {
+    dragDateRef.current = coordinateToDate(
+      event.clientX,
+      event.clientY,
+      boxRect,
+    );
+  };
+
   const handleDragOver = (event: React.MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
@@ -45,7 +55,25 @@ export default function WorkSection({
   const handleDrop = (event: React.MouseEvent) => {
     event.preventDefault();
     const dropDate = coordinateToDate(event.clientX, event.clientY, boxRect);
-    saveWork(workId, { ...work, startTime: dropDate });
+    const startTimeOffset = Math.abs(
+      new Date(work.startTime).getTime() -
+        new Date(dragDateRef.current).getTime(),
+    );
+    const endTimeOffset = Math.abs(
+      new Date(work.endTime).getTime() -
+        new Date(dragDateRef.current).getTime(),
+    );
+    let newWork: WorkInner = {
+      name: "",
+      description: "",
+      startTime: "",
+      endTime: "",
+    };
+    if (startTimeOffset < endTimeOffset)
+      newWork = { ...work, startTime: dropDate };
+    else newWork = { ...work, endTime: dropDate };
+    const result = validate(newWork, works, workId);
+    if (result.ok) saveWork(workId, newWork);
   };
 
   const handleMoveDown = (event: React.MouseEvent) => {
@@ -80,6 +108,7 @@ export default function WorkSection({
       className="absolute top-0 left-0 bg-yellow-500 w-20 h-20"
       onClick={(e) => handleMoveDown(e)}
       onContextMenu={(e) => handleShowContextMenu(e)}
+      onDragStart={(e) => handleDragStart(e)}
       onDragOver={(e) => handleDragOver(e)}
       onDrop={(e) => handleDrop(e)}
       style={{ ...workPosition }}

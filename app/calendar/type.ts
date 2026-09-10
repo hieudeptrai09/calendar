@@ -17,3 +17,9 @@ export type WorkInner = {
 };
 
 export type Work = Record<string, WorkInner>;
+
+export type WorkErrors = Partial<Record<keyof WorkInner, string>>;
+
+export type ValidationResult =
+  | { ok: true; work: WorkInner }
+  | { ok: false; errors: WorkErrors };

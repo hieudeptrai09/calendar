@@ -1,5 +1,11 @@
 import { LIMIT, MINUTE_PER_DAY, PREFIX } from "./constant";
-import type { boundingClientRect } from "./type";
+import type {
+  boundingClientRect,
+  ValidationResult,
+  Work,
+  WorkErrors,
+  WorkInner,
+} from "./type";
 
 export const coordinateToDate = (
   screenX: number,
@@ -40,3 +46,34 @@ export const dateToCoordinate = (
 
 export const createWorkId = () =>
   `${PREFIX}${Math.floor(Math.random() * 1000000000).toString(36)}`;
+
+export const validate = (
+  input: WorkInner,
+  works: Work,
+  workId?: string,
+): ValidationResult => {
+  const work: WorkInner = {
+    ...input,
+    name: (input.name ?? "").trim(),
+    description: (input.description ?? "").trim(),
+  };
+  if (work.startTime && work.endTime && work.startTime > work.endTime)
+    [work.startTime, work.endTime] = [work.endTime, work.startTime];
+
+  const errors: WorkErrors = {};
+  if (!work.name) errors.name = "Name is required.";
+  if (!work.startTime) errors.startTime = "Start time is required.";
+  if (!work.endTime) errors.endTime = "End time is required. ";
+
+  const overlapped = Object.entries(works).find(
+    ([id, other]) =>
+      id !== workId &&
+      work.startTime < other.endTime &&
+      other.startTime < work.endTime,
+  );
+  if (overlapped)
+    errors.endTime += `This time overlaps with "${overlapped[1].name}".`;
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+  return { ok: true, work };
+};
