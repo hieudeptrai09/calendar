@@ -1,17 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type RefObject } from "react";
 import WorkDialog from "./workDialog";
 import WorkContextMenu from "./workContextMenu";
-import type { boundingClientRect } from "./type";
-import { coordinateToDate, dateToCoordinate } from "./utils";
-import { DRAG_TIME, DRAG_ID, LIMIT } from "./constant";
+import { coordinateToDate, workToRects } from "./utils";
+import { DRAG_TIME, DRAG_ID } from "./constant";
 import { useWorkContext } from "./workContext";
 
 export default function WorkSection({
   workId,
-  boxRect,
+  boxRef,
 }: {
   workId: string;
-  boxRect?: boundingClientRect;
+  boxRef: RefObject<HTMLDivElement | null>;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
@@ -23,19 +22,24 @@ export default function WorkSection({
   const { works, moveWork, removeWork } = useWorkContext();
   const work = works[workId];
 
-  const workPosition = useMemo(() => {
-    if (!work || !boxRect) return null;
-    const startPosition = dateToCoordinate(work.startTime, boxRect);
-    const endPosition = dateToCoordinate(work.endTime, boxRect);
-    return {
-      top: startPosition.top,
-      left: startPosition.left,
-      width: boxRect.width / LIMIT,
-      height: endPosition.top - startPosition.top,
-    };
-  }, [work, boxRect]);
+  const workPositions = useMemo(() => {
+    if (!work || !boxRef.current) return [];
+    return workToRects(work, boxRef.current.getBoundingClientRect());
+  }, [work, boxRef.current]);
 
-  if (!work || !workPosition) return null;
+  useEffect(() => {
+    if (!isContextMenuOpen) return;
+    const close = () => setIsContextMenuOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    document.addEventListener("click", close);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("click", close);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [isContextMenuOpen]);
+
+  if (!work || workPositions.length === 0) return null;
 
   const handleDragStart = (event: React.DragEvent) => {
     event.stopPropagation();
@@ -43,7 +47,11 @@ export default function WorkSection({
     event.dataTransfer.setData(DRAG_ID, workId);
     event.dataTransfer.setData(
       DRAG_TIME,
-      coordinateToDate(event.clientX, event.clientY, boxRect),
+      coordinateToDate(
+        event.clientX,
+        event.clientY,
+        boxRef.current?.getBoundingClientRect(),
+      ),
     );
   };
 
@@ -63,7 +71,11 @@ export default function WorkSection({
     moveWork(
       draggedWorkId,
       grabTime,
-      coordinateToDate(event.clientX, event.clientY, boxRect),
+      coordinateToDate(
+        event.clientX,
+        event.clientY,
+        boxRef.current?.getBoundingClientRect(),
+      ),
     );
   };
 
@@ -95,18 +107,23 @@ export default function WorkSection({
   };
 
   return (
-    <div
-      className="absolute top-0 left-0 bg-yellow-500 w-20 h-20"
-      draggable
-      onClick={(e) => handleMoveDown(e)}
-      onContextMenu={(e) => handleShowContextMenu(e)}
-      onDragStart={(e) => handleDragStart(e)}
-      onDragOver={(e) => handleDragOver(e)}
-      onDrop={(e) => handleDrop(e)}
-      style={{ ...workPosition }}
-    >
-      <div>{work.name}</div>
-      <div>{work.description}</div>
+    <>
+      {workPositions.map((workPosition) => (
+        <div
+          key={`${workPosition.left}-${workPosition.top}`}
+          className="absolute bg-yellow-500 overflow-hidden"
+          draggable
+          onClick={(e) => handleMoveDown(e)}
+          onContextMenu={(e) => handleShowContextMenu(e)}
+          onDragStart={(e) => handleDragStart(e)}
+          onDragOver={(e) => handleDragOver(e)}
+          onDrop={(e) => handleDrop(e)}
+          style={{ ...workPosition }}
+        >
+          <div>{work.name}</div>
+          <div>{work.description}</div>
+        </div>
+      ))}
       <WorkDialog
         work={work}
         workId={workId}
@@ -122,6 +139,6 @@ export default function WorkSection({
         editWork={editWork}
         deleteWork={deleteWork}
       />
-    </div>
+    </>
   );
 }

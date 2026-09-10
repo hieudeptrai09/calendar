@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useRef, useState, type RefObject } from "react";
 import WorkDialog from "./workDialog";
 import type { boundingClientRect, WorkInner } from "./type";
 import { coordinateToDate } from "./utils";
@@ -6,9 +6,9 @@ import { DRAG_TIME, DRAG_ID } from "./constant";
 import { useWorkContext } from "./workContext";
 
 export default function WorkGrid({
-  boxRect,
+  boxRef,
 }: {
-  boxRect?: boundingClientRect;
+  boxRef: RefObject<HTMLDivElement | null>;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [work, setWork] = useState<WorkInner>({
@@ -24,7 +24,11 @@ export default function WorkGrid({
   const { moveWork } = useWorkContext();
 
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
-    dragDate.current = coordinateToDate(event.clientX, event.clientY, boxRect);
+    dragDate.current = coordinateToDate(
+      event.clientX,
+      event.clientY,
+      boxRef.current?.getBoundingClientRect(),
+    );
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -33,7 +37,11 @@ export default function WorkGrid({
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    dropDate.current = coordinateToDate(event.clientX, event.clientY, boxRect);
+    dropDate.current = coordinateToDate(
+      event.clientX,
+      event.clientY,
+      boxRef.current?.getBoundingClientRect(),
+    );
     const draggedWorkId = event.dataTransfer.getData(DRAG_ID);
     const grabTime = event.dataTransfer.getData(DRAG_TIME);
     if (draggedWorkId && grabTime) {

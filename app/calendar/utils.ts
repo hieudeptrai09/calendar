@@ -97,3 +97,40 @@ export const validate = (
   if (Object.keys(errors).length > 0) return { ok: false, errors };
   return { ok: true, work };
 };
+
+export const splitByDate = (startTime: string, endTime: string) => {
+  const segments: { startTime: string; endTime: string }[] = [];
+  const end = new Date(endTime);
+  let cursor = new Date(startTime);
+  while (cursor < end) {
+    const nextMidnight = new Date(cursor);
+    nextMidnight.setDate(nextMidnight.getDate() + 1);
+    nextMidnight.setHours(0, 0, 0, 0);
+    const segmentEnd = nextMidnight < end ? nextMidnight : end;
+    segments.push({
+      startTime: toDateTimeLocal(cursor),
+      endTime: toDateTimeLocal(segmentEnd),
+    });
+    cursor = segmentEnd;
+  }
+  return segments;
+};
+
+export const workToRects = (work: WorkInner, boxRect?: boundingClientRect) => {
+  if (!boxRect) return [];
+  return splitByDate(work.startTime, work.endTime)
+    .map((segment) => {
+      const { top, left } = dateToCoordinate(segment.startTime, boxRect);
+      const minutes =
+        (new Date(segment.endTime).getTime() -
+          new Date(segment.startTime).getTime()) /
+        60000;
+      return {
+        top,
+        left,
+        width: boxRect.width / LIMIT,
+        height: (minutes * boxRect.height) / MINUTE_PER_DAY,
+      };
+    })
+    .filter((rect) => rect.left >= 0 && rect.left < boxRect.width);
+};

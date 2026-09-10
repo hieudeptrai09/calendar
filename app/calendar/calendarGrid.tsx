@@ -53,9 +53,9 @@ export default function CalendarGrid({ works }: { works: string[] }) {
 
         <div className="relative flex-1">
           <div className="absolute inset-0" ref={boxRef}>
-            <WorkGrid boxRect={boxRect} />
+            <WorkGrid boxRef={boxRef} />
             {works.map((workId) => (
-              <WorkSection key={workId} workId={workId} boxRect={boxRect} />
+              <WorkSection key={workId} workId={workId} boxRef={boxRef} />
             ))}
           </div>
         </div>
