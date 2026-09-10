@@ -21,8 +21,28 @@ export const coordinateToDate = (
   const date = new Date();
   date.setDate(date.getDate() + dateOffset);
   date.setHours(0, minuteFromMidnight, 0, 0);
+  return toDateTimeLocal(date);
+};
+
+export const toDateTimeLocal = (date: Date) => {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
+export const shiftWork = (
+  work: WorkInner,
+  grabTime: string,
+  dropTime: string,
+): WorkInner => {
+  const offset =
+    new Date(dropTime).getTime() - new Date(grabTime).getTime();
+  const shift = (dateTimeString: string) =>
+    toDateTimeLocal(new Date(new Date(dateTimeString).getTime() + offset));
+  return {
+    ...work,
+    startTime: shift(work.startTime),
+    endTime: shift(work.endTime),
+  };
 };
 
 export const dateToCoordinate = (

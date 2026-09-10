@@ -2,6 +2,8 @@ import { Fragment, useRef, useState } from "react";
 import WorkDialog from "./workDialog";
 import type { boundingClientRect, WorkInner } from "./type";
 import { coordinateToDate } from "./utils";
+import { DRAG_TIME, DRAG_ID } from "./constant";
+import { useWorkContext } from "./workContext";
 
 export default function WorkGrid({
   boxRect,
@@ -19,6 +21,8 @@ export default function WorkGrid({
   const dragDate = useRef("");
   const dropDate = useRef("");
 
+  const { moveWork } = useWorkContext();
+
   const handleDragStart = (event: React.DragEvent<HTMLDivElement>) => {
     dragDate.current = coordinateToDate(event.clientX, event.clientY, boxRect);
   };
@@ -30,6 +34,12 @@ export default function WorkGrid({
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     dropDate.current = coordinateToDate(event.clientX, event.clientY, boxRect);
+    const draggedWorkId = event.dataTransfer.getData(DRAG_ID);
+    const grabTime = event.dataTransfer.getData(DRAG_TIME);
+    if (draggedWorkId && grabTime) {
+      moveWork(draggedWorkId, grabTime, dropDate.current);
+      return;
+    }
     setWork((prevWork) => ({
       ...prevWork,
       startTime: dragDate.current,

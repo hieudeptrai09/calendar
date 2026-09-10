@@ -1,9 +1,9 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import WorkDialog from "./workDialog";
 import WorkContextMenu from "./workContextMenu";
-import type { boundingClientRect, WorkInner } from "./type";
-import { coordinateToDate, dateToCoordinate, validate } from "./utils";
-import { LIMIT } from "./constant";
+import type { boundingClientRect } from "./type";
+import { coordinateToDate, dateToCoordinate } from "./utils";
+import { DRAG_TIME, DRAG_ID, LIMIT } from "./constant";
 import { useWorkContext } from "./workContext";
 
 export default function WorkSection({
@@ -20,9 +20,7 @@ export default function WorkSection({
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("");
 
-  const dragDateRef = useRef("");
-
-  const { works, saveWork, removeWork } = useWorkContext();
+  const { works, moveWork, removeWork } = useWorkContext();
   const work = works[workId];
 
   const workPosition = useMemo(() => {
@@ -39,41 +37,34 @@ export default function WorkSection({
 
   if (!work || !workPosition) return null;
 
-  const handleDragStart = (event: React.MouseEvent) => {
-    dragDateRef.current = coordinateToDate(
-      event.clientX,
-      event.clientY,
-      boxRect,
+  const handleDragStart = (event: React.DragEvent) => {
+    event.stopPropagation();
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData(DRAG_ID, workId);
+    event.dataTransfer.setData(
+      DRAG_TIME,
+      coordinateToDate(event.clientX, event.clientY, boxRect),
     );
   };
 
-  const handleDragOver = (event: React.MouseEvent) => {
+  const handleDragOver = (event: React.DragEvent) => {
+    if (!event.dataTransfer.types.includes(DRAG_ID)) return;
     event.stopPropagation();
     event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
   };
 
-  const handleDrop = (event: React.MouseEvent) => {
+  const handleDrop = (event: React.DragEvent) => {
+    const draggedWorkId = event.dataTransfer.getData(DRAG_ID);
+    const grabTime = event.dataTransfer.getData(DRAG_TIME);
+    if (!draggedWorkId || !grabTime) return;
+    event.stopPropagation();
     event.preventDefault();
-    const dropDate = coordinateToDate(event.clientX, event.clientY, boxRect);
-    const startTimeOffset = Math.abs(
-      new Date(work.startTime).getTime() -
-        new Date(dragDateRef.current).getTime(),
+    moveWork(
+      draggedWorkId,
+      grabTime,
+      coordinateToDate(event.clientX, event.clientY, boxRect),
     );
-    const endTimeOffset = Math.abs(
-      new Date(work.endTime).getTime() -
-        new Date(dragDateRef.current).getTime(),
-    );
-    let newWork: WorkInner = {
-      name: "",
-      description: "",
-      startTime: "",
-      endTime: "",
-    };
-    if (startTimeOffset < endTimeOffset)
-      newWork = { ...work, startTime: dropDate };
-    else newWork = { ...work, endTime: dropDate };
-    const result = validate(newWork, works, workId);
-    if (result.ok) saveWork(workId, newWork);
   };
 
   const handleMoveDown = (event: React.MouseEvent) => {
@@ -106,6 +97,7 @@ export default function WorkSection({
   return (
     <div
       className="absolute top-0 left-0 bg-yellow-500 w-20 h-20"
+      draggable
       onClick={(e) => handleMoveDown(e)}
       onContextMenu={(e) => handleShowContextMenu(e)}
       onDragStart={(e) => handleDragStart(e)}

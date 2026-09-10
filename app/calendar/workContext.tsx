@@ -8,10 +8,12 @@ import {
 } from "react";
 import { PREFIX } from "./constant";
 import type { Work, WorkInner } from "./type";
+import { shiftWork, validate } from "./utils";
 
 type WorkContextValue = {
   works: Work;
   saveWork: (workId: string, work: WorkInner) => void;
+  moveWork: (workId: string, grabTime: string, dropTime: string) => void;
   removeWork: (workId: string) => void;
 };
 
@@ -41,14 +43,28 @@ export function WorkContextProvider({
     setWorks((prev) => ({ ...prev, [workId]: work }));
   }, []);
 
+  const moveWork = useCallback(
+    (workId: string, grabTime: string, dropTime: string) => {
+      setWorks((prev) => {
+        const work = prev[workId];
+        if (!work) return prev;
+        const result = validate(shiftWork(work, grabTime, dropTime), prev, workId);
+        if (!result.ok) return prev;
+        localStorage.setItem(workId, JSON.stringify(result.work));
+        return { ...prev, [workId]: result.work };
+      });
+    },
+    [],
+  );
+
   const removeWork = useCallback((workId: string) => {
     localStorage.removeItem(workId);
     setWorks(({ [workId]: _removed, ...rest }) => rest);
   }, []);
 
   const value = useMemo(
-    () => ({ works, saveWork, removeWork }),
-    [works, saveWork, removeWork],
+    () => ({ works, saveWork, moveWork, removeWork }),
+    [works, saveWork, moveWork, removeWork],
   );
 
   return <WorkContext.Provider value={value}>{children}</WorkContext.Provider>;
