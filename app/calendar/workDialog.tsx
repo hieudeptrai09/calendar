@@ -1,4 +1,6 @@
-import { createWorkId, useWorkContext } from "./workContext";
+import type { WorkInner } from "./type";
+import { createWorkId } from "./utils";
+import { useWorkContext } from "./workContext";
 
 type WorkDialogProps = {
   work?: WorkInner;

@@ -1,6 +1,6 @@
 import { Fragment, useRef, useState } from "react";
 import WorkDialog from "./workDialog";
-import type { boundingClientRect } from "./type";
+import type { boundingClientRect, WorkInner } from "./type";
 import { coordinateToDate } from "./utils";
 
 export default function WorkGrid({

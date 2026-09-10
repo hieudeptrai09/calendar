@@ -1,4 +1,4 @@
-import { LIMIT, MINUTE_PER_DAY } from "./constant";
+import { LIMIT, MINUTE_PER_DAY, PREFIX } from "./constant";
 import type { boundingClientRect } from "./type";
 
 export const coordinateToDate = (
@@ -37,3 +37,6 @@ export const dateToCoordinate = (
     top: (minuteOffset * boxRect.height) / MINUTE_PER_DAY,
   };
 };
+
+export const createWorkId = () =>
+  `${PREFIX}${Math.floor(Math.random() * 1000000000).toString(36)}`;

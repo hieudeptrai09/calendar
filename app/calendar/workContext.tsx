@@ -6,11 +6,8 @@ import {
   useMemo,
   useState,
 } from "react";
-
-const PREFIX = "scfcalendar_";
-
-export const createWorkId = () =>
-  `${PREFIX}${Math.floor(Math.random() * 1000000000).toString(36)}`;
+import { PREFIX } from "./constant";
+import type { Work, WorkInner } from "./type";
 
 type WorkContextValue = {
   works: Work;
