@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type RefObject } from "react";
 import WorkDialog from "./workDialog";
 import WorkContextMenu from "./workContextMenu";
 import { coordinateToDate, workToRects } from "./utils";
+import type { boundingClientRect } from "./type";
 import { DRAG_TIME, DRAG_ID } from "./constant";
 import { useWorkContext } from "./workContext";
 import NotificationDialog from "./notificationDialog";
@@ -20,21 +21,25 @@ export default function WorkSection({
   const [yContextMenu, setYContextMenu] = useState(0);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("");
-  const [resizeTick, setResizeTick] = useState(0);
+  const [boxRect, setBoxRect] = useState<boundingClientRect>();
 
   const { works, moveWork, removeWork } = useWorkContext();
   const work = works[workId];
 
   const workPositions = useMemo(() => {
-    if (!work || !boxRef.current) return [];
-    return workToRects(work, boxRef.current.getBoundingClientRect());
-  }, [work, boxRef.current, resizeTick]);
+    if (!work) return [];
+    return workToRects(work, boxRect);
+  }, [work, boxRect]);
 
   useEffect(() => {
-    const notifyResize = () => setResizeTick((prev) => prev + 1);
-    window.addEventListener("resize", notifyResize);
-    return window.removeEventListener("resize", notifyResize);
-  }, []);
+    const box = boxRef.current;
+    if (!box) return;
+    const measure = () => setBoxRect(box.getBoundingClientRect());
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(box);
+    return () => observer.disconnect();
+  }, [boxRef]);
 
   useEffect(() => {
     if (!isContextMenuOpen) return;

@@ -21,13 +21,13 @@ export default function CalendarGrid({ works }: { works: string[] }) {
   return (
     <>
       <div className="flex w-full">
-        <div className="w-15 h-12 border border-gray-300"></div>
+        <div className="w-15 min-w-15 h-12 border border-gray-300"></div>
         {dates.map((date) => (
           <div
             key={date}
-            className="h-12 border-t border-r border-b border-gray-300 flex flex-1 items-center justify-center"
+            className="h-12 border-t border-r border-b border-gray-300 flex flex-1 min-w-0 items-center justify-center"
           >
-            {date}
+            <span className="truncate px-1">{date}</span>
           </div>
         ))}
       </div>
