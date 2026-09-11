@@ -18,6 +18,7 @@ export default function WorkSection({
   const [yContextMenu, setYContextMenu] = useState(0);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [dialogTitle, setDialogTitle] = useState("");
+  const [resizeTick, setResizeTick] = useState(0);
 
   const { works, moveWork, removeWork } = useWorkContext();
   const work = works[workId];
@@ -25,7 +26,13 @@ export default function WorkSection({
   const workPositions = useMemo(() => {
     if (!work || !boxRef.current) return [];
     return workToRects(work, boxRef.current.getBoundingClientRect());
-  }, [work, boxRef.current]);
+  }, [work, boxRef.current, resizeTick]);
+
+  useEffect(() => {
+    const notifyResize = () => setResizeTick((prev) => prev + 1);
+    window.addEventListener("resize", notifyResize);
+    return window.removeEventListener("resize", notifyResize);
+  }, []);
 
   useEffect(() => {
     if (!isContextMenuOpen) return;
@@ -111,7 +118,7 @@ export default function WorkSection({
       {workPositions.map((workPosition) => (
         <div
           key={`${workPosition.left}-${workPosition.top}`}
-          className="absolute bg-yellow-500 overflow-hidden"
+          className="absolute bg-yellow-700 overflow-hidden px-3 py-2 hover:bg-yellow-800"
           draggable
           onClick={(e) => handleMoveDown(e)}
           onContextMenu={(e) => handleShowContextMenu(e)}
@@ -120,7 +127,7 @@ export default function WorkSection({
           onDrop={(e) => handleDrop(e)}
           style={{ ...workPosition }}
         >
-          <div>{work.name}</div>
+          <div className="text-xl font-bold">{work.name}</div>
           <div>{work.description}</div>
         </div>
       ))}

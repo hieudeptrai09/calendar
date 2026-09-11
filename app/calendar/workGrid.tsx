@@ -1,6 +1,6 @@
 import { Fragment, useRef, useState, type RefObject } from "react";
 import WorkDialog from "./workDialog";
-import type { boundingClientRect, WorkInner } from "./type";
+import type { WorkInner } from "./type";
 import { coordinateToDate } from "./utils";
 import { DRAG_TIME, DRAG_ID } from "./constant";
 import { useWorkContext } from "./workContext";
@@ -59,7 +59,7 @@ export default function WorkGrid({
   return (
     <>
       <div
-        className="grid grid-cols-7 grid-rows-24 border border-gray-300 w-full h-full"
+        className="grid grid-cols-7 grid-rows-24 w-full h-full"
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
@@ -67,7 +67,7 @@ export default function WorkGrid({
         {Array.from({ length: 24 }).map((_, rowIndex) => (
           <Fragment key={rowIndex}>
             {Array.from({ length: 7 }).map((_, colIndex) => (
-              <div key={colIndex} className="border border-gray-300">
+              <div key={colIndex} className="border-r border-b border-gray-300 hover:bg-gray-200 dark:hover:bg-gray-900">
                 {/* Content for each cell */}
               </div>
             ))}

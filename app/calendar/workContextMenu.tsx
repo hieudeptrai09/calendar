@@ -16,15 +16,15 @@ export default function WorkContextMenu({
   if (!isOpen) return null;
   return (
     <div
-      className="fixed min-w-36 rounded-md border border-slate-200 bg-white py-1 shadow-lg text-gray-700"
+      className="fixed w-30 rounded-md bg-white p-2 shadow-lg text-gray-700"
       style={{ left: x, top: y }}
       onClick={(e) => e.stopPropagation()}
       onContextMenu={(e) => e.stopPropagation()}
     >
-      <button className="block" onClick={editWork}>
+      <button className="block hover:bg-gray-200 w-full pb-2 text-left" onClick={editWork}>
         Sửa
       </button>
-      <button className="block" onClick={deleteWork}>
+      <button className="block hover:bg-gray-200 w-full pt-2 text-left" onClick={deleteWork}>
         Xoá
       </button>
     </div>

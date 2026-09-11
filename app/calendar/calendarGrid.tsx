@@ -1,20 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { LIMIT } from "./constant";
 import WorkGrid from "./workGrid";
 import WorkSection from "./workSection";
-import type { boundingClientRect } from "./type";
 
 export default function CalendarGrid({ works }: { works: string[] }) {
   const dates = [];
   const times = [];
   const boxRef = useRef<HTMLDivElement>(null);
-  const [boxRect, setBoxRect] = useState<boundingClientRect | undefined>(
-    undefined,
-  );
-
-  useEffect(() => {
-    if (boxRef.current) setBoxRect(boxRef.current.getBoundingClientRect());
-  }, []);
 
   for (let i = 0; i < LIMIT; i++) {
     const date = new Date();
@@ -33,7 +25,7 @@ export default function CalendarGrid({ works }: { works: string[] }) {
         {dates.map((date) => (
           <div
             key={date}
-            className="h-12 border border-gray-300 flex flex-1 items-center justify-center"
+            className="h-12 border-t border-r border-b border-gray-300 flex flex-1 items-center justify-center"
           >
             {date}
           </div>
@@ -44,7 +36,7 @@ export default function CalendarGrid({ works }: { works: string[] }) {
           {times.map((time) => (
             <div
               key={time}
-              className="h-[100px] border border-gray-300 flex items-start justify-center"
+              className="h-[100px] border-l border-r border-b border-gray-300 flex items-start justify-center"
             >
               {time}
             </div>
