@@ -67,7 +67,7 @@ export default function WorkDialog({
             <label className="block text-gray-700">Name</label>
             <input
               type="text"
-              className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 w-full"
+              className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 w-full hover:bg-gray-200"
               placeholder="Enter work name"
               name="name"
               defaultValue={work?.name || ""}
@@ -80,7 +80,7 @@ export default function WorkDialog({
           <div>
             <label className="block text-gray-700">Description</label>
             <textarea
-              className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 w-full"
+              className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 w-full hover:bg-gray-200"
               placeholder="Enter work description"
               name="description"
               defaultValue={work?.description || ""}
@@ -91,7 +91,7 @@ export default function WorkDialog({
             <label className="block text-gray-700">Start Time</label>
             <input
               type="datetime-local"
-              className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+              className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 hover:bg-gray-200"
               name="startTime"
               defaultValue={work?.startTime || ""}
               disabled={isReadonly}
@@ -104,7 +104,7 @@ export default function WorkDialog({
             <label className="block text-gray-700">End Time</label>
             <input
               type="datetime-local"
-              className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+              className="border border-gray-300 rounded py-2 px-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 hover:bg-gray-200"
               name="endTime"
               defaultValue={work?.endTime || ""}
               disabled={isReadonly}
@@ -113,20 +113,23 @@ export default function WorkDialog({
               <p className="text-red-500 text-sm mt-1">{errors.endTime}</p>
             )}
           </div>
+
           <div className="flex justify-end space-x-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="border border-gray-700 text-gray-700 font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500 mr-2"
+              className="border border-gray-700 text-gray-700 font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-gray-500 mr-2 hover:bg-gray-200"
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Save Work
-            </button>
+            {!isReadonly && (
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                Save Work
+              </button>
+            )}
           </div>
         </form>
       </div>

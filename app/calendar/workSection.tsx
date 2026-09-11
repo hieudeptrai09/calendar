@@ -4,6 +4,7 @@ import WorkContextMenu from "./workContextMenu";
 import { coordinateToDate, workToRects } from "./utils";
 import { DRAG_TIME, DRAG_ID } from "./constant";
 import { useWorkContext } from "./workContext";
+import NotificationDialog from "./notificationDialog";
 
 export default function WorkSection({
   workId,
@@ -14,6 +15,7 @@ export default function WorkSection({
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
   const [xContextMenu, setXContextMenu] = useState(0);
   const [yContextMenu, setYContextMenu] = useState(0);
   const [isReadOnly, setIsReadOnly] = useState(false);
@@ -110,7 +112,7 @@ export default function WorkSection({
 
   const deleteWork = () => {
     setIsContextMenuOpen(false);
-    removeWork(workId);
+    setIsNotifyOpen(true);
   };
 
   return (
@@ -145,6 +147,11 @@ export default function WorkSection({
         isOpen={isContextMenuOpen}
         editWork={editWork}
         deleteWork={deleteWork}
+      />
+      <NotificationDialog
+        isOpen={isNotifyOpen}
+        onClose={() => setIsNotifyOpen(false)}
+        workId={workId}
       />
     </>
   );
